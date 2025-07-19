@@ -108,6 +108,7 @@ button:hover {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  transition: transform 0.2s ease; /* Smooth grow/shrink effect */
 }
 
 /* Three columns on wider screens */
@@ -115,6 +116,10 @@ button:hover {
   .gallery-item {
     flex: 0 1 31%;
   }
+}
+
+.gallery-item:hover {
+  transform: scale(1.08); /* Slightly grow the card */
 }
 
 .gallery-item img {
@@ -141,4 +146,106 @@ button:hover {
 .placeholder-icon {
   font-size: 48px;
   margin-bottom: 20px;
+}
+
+/* Info row for title and date */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  gap: 4px; /* Small gap between boxes */
+}
+
+/* Title box on the left */
+.image-title {
+  flex: 1;
+  background: #f5f5f5;
+  padding: 6px 10px;
+  border-radius: 4px;
+  text-align: left;
+  font-weight: bold;
+  color: #212121;
+}
+
+/* Date box on the right */
+.image-date {
+  background: #eaeaea;
+  padding: 6px 10px;
+  border-radius: 4px;
+  text-align: right;
+  font-size: 13px;
+  color: #666;
+  min-width: 90px;
+  align-self: flex-start; /* Align date box to the top */
+}
+
+/* Modal overlay */
+.modal {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5); /* 50% opacity black */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Modal content box */
+.modal-content {
+  background: #fff;
+  border-radius: 8px;
+  max-width: 90vw;
+  max-height: 90vh;
+  padding: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: auto;
+}
+
+/* Close button */
+.modal-close {
+  position: absolute;
+  top: 2px;    /* Move closer to the top edge */
+  right: 20px;
+  font-size: 32px;
+  color: #333;
+  cursor: pointer;
+  z-index: 1;  /* Make sure it's above other content */
+}
+
+/* Modal title */
+.modal-title {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* Modal media */
+.modal-media img, .modal-media iframe {
+  max-width: 80vw;
+  max-height: 60vh;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+/* Modal description */
+.modal-desc {
+  font-size: 1em;
+  margin-bottom: 16px;
+  color: #444;
+  text-align: center;
+}
+
+/* Modal date */
+.modal-date {
+  font-size: 0.95em;
+  color: #666;
+  margin-top: 8px;
+  text-align: center;
 }
