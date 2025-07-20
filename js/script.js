@@ -1,3 +1,16 @@
+const space_facts = [
+    "Space is completely silent because there is no atmosphere to carry sound waves.",
+    "Venus is actually hotter than Mercury, even though Mercury is closer to the Sun, due to Venus's thick, heat-trapping atmosphere.",
+    "A single day on Venus is longer than its entire year because it rotates so slowly on its axis.",
+    "Neutron stars are so dense that a single sugar-cube-sized amount of their material would weigh about a billion tons on Earth.",
+    "There is a planet called 55 Cancri e that may be made largely of diamond because of its carbon-rich composition.",
+    "The Sun makes up 99.86 percent of the total mass in our solar system, with most of the rest belonging to Jupiter.",
+    "Space technically begins just 100 kilometers, or about 62 miles, above Earth at a point known as the Kármán line.",
+    "There are more stars in the observable universe than there are grains of sand on all the beaches on Earth.",
+    "Black holes can slowly lose mass and eventually disappear through a process known as Hawking radiation.",
+    "Saturn is so light for its size that it would actually float in water, assuming you had a body of water large enough."
+]
+
 // Getter for NASA APOD
 function getAPOD(startDate, endDate) {
   const api_key = "aCzELLweMaRIOH9tq3ZgRUw1DWOmrSFFDn8qEmlt";
@@ -23,63 +36,101 @@ const endInput = document.getElementById('endDate');
 // - Restrict dates to NASA's image archive (starting from 1995)
 setupDateInputs(startInput, endInput);
 
+const factBox = document.createElement('div'); // Create a box for the fact
+factBox.id = 'space-fact';
+factBox.style.margin = '20px 0';
+factBox.style.fontStyle = 'italic';
+factBox.style.textAlign = 'center';
+
+// Insert the fact box above the gallery (only once)
+const container = document.querySelector('.container');
+container.insertBefore(factBox, document.getElementById('gallery'));
+
 // Event listener for the submit button
 subBtn.addEventListener('click', () => {
+  // Pick a random fact
+  const randomFact = space_facts[Math.floor(Math.random() * space_facts.length)];
+  factBox.textContent = `Space Fact: ${randomFact}`;
+
   const startDate = startInput.value;
   const endDate = endInput.value;
   const gallery = document.getElementById('gallery');
-  gallery.innerHTML = '';
+
+  // Show loading message
+  gallery.innerHTML = `
+    <div class="loading-message" id="loadingMessage">
+      <div class="loading-icon">🌑</div>
+      <div class="loading-text">Loading space images...</div>
+    </div>
+  `;
+
+  // Record the time when loading starts
+  const loadingStart = Date.now();
 
   getAPOD(startDate, endDate)
     .then(data => {
-      // Always use an array
-      const images = Array.isArray(data) ? data : [data];
+      // Calculate how long loading has been shown
+      const elapsed = Date.now() - loadingStart;
+      const minTime = 2000; // 2 seconds
 
-      // Save images globally for modal use
-      window.lastGalleryItems = images;
+      // Function to show images after minimum time
+      const showImages = () => {
+        const images = Array.isArray(data) ? data : [data];
+        window.lastGalleryItems = images;
 
-      images.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'gallery-item';
+        gallery.innerHTML = ""; // Clear loading message
 
-        const infoRow = document.createElement('div');
-        infoRow.className = 'info-row';
+        images.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'gallery-item';
 
-        const title = document.createElement('span');
-        title.className = 'image-title';
-        title.textContent = item.title;
+          const infoRow = document.createElement('div');
+          infoRow.className = 'info-row';
 
-        const date = document.createElement('span');
-        date.className = 'image-date';
-        date.textContent = item.date;
+          const title = document.createElement('span');
+          title.className = 'image-title';
+          title.textContent = item.title;
 
-        infoRow.appendChild(title);
-        infoRow.appendChild(date);
+          const date = document.createElement('span');
+          date.className = 'image-date';
+          date.textContent = item.date;
 
-        let mediaHtml = "";
-        if (item.media_type === "image") {
-          mediaHtml = `<img src="${item.url}" alt="${item.title}" />`;
-        } else if (item.media_type === "video") {
-          const thumb = item.thumbnail_url || "https://placehold.co/500x200";
-          mediaHtml = `<img src="${thumb}" alt="Video thumbnail for ${item.title}" />`;
+          infoRow.appendChild(title);
+          infoRow.appendChild(date);
+
+          let mediaHtml = "";
+          if (item.media_type === "image") {
+            mediaHtml = `<img src="${item.url}" alt="${item.title}" />`;
+          } else if (item.media_type === "video") {
+            const thumb = item.thumbnail_url || "https://placehold.co/500x200";
+            mediaHtml = `<img src="${thumb}" alt="Video thumbnail for ${item.title}" />`;
+          }
+
+          card.innerHTML = mediaHtml;
+          card.appendChild(infoRow);
+
+          gallery.appendChild(card);
+        });
+
+        if (gallery.children.length === 0) {
+          gallery.innerHTML = `
+            <div class="placeholder">
+              <div class="placeholder-icon">🔭</div>
+              <p>No images found for this date range.</p>
+            </div>
+          `;
         }
+      };
 
-        card.innerHTML = mediaHtml;
-        card.appendChild(infoRow);
-
-        gallery.appendChild(card);
-      });
-
-      if (gallery.children.length === 0) {
-        gallery.innerHTML = `
-          <div class="placeholder">
-            <div class="placeholder-icon">🔭</div>
-            <p>No images found for this date range.</p>
-          </div>
-        `;
+      // If less than 2 seconds, wait the remaining time
+      if (elapsed < minTime) {
+        setTimeout(showImages, minTime - elapsed);
+      } else {
+        showImages();
       }
     })
     .catch(error => {
+      gallery.innerHTML = ""; // Hide loading message on error
       console.error('Error fetching APOD data:', error);
       alert('Failed to fetch images. Please try again later.');
     });
